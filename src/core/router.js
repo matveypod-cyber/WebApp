@@ -1,35 +1,84 @@
-class Router {
-    constructor() { this.currentRoute = null; }
+// src/core/router.js
+import { getMainContainer, updateActiveNav } from "./uiContainer.js";
 
-    init() {
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.navigate(btn.dataset.route);
-            });
-        });
-        window.addEventListener('popstate', () => {
-            const route = location.pathname.slice(1) || 'tasks';
-            this.navigate(route);
-        });
-    }
+let routes = {};
+let defaultRoute = null;
+let currentRoute = null;
 
-    async navigate(route) {
-        if (this.currentRoute === route) return;
-        
-        // UI
-        document.querySelectorAll('.nav-btn').forEach(btn => 
-            btn.classList.toggle('active', btn.dataset.route === route)
-        );
-        await window.Core.loadModule(route);
-        this.currentRoute = route;
-        
-        // History ТОЛЬКО если не fallback
-        if (!window.location.pathname.includes('public')) {
-            history.pushState({}, '', '/' + route);
-        }
-    }
+export function initRouter() {
+  console.log("🧭 Router initializing...");
+  
+  routes = {
+    "/": () => loadModule("/tasks"),
+    "/tasks": () => loadModule("/tasks"),
+    "/notes": () => loadModule("/notes"),
+    "/tracker": () => loadModule("/tracker")
+  };
+  
+  defaultRoute = "/tasks";
+  
+  window.addEventListener("popstate", handleRoute);
+  handleRoute();
+  
+  console.log("✅ Router ready");
 }
 
-window.Router = new Router();
+export function navigate(path) {
+  if (currentRoute === path) return;
+  
+  history.pushState({}, "", path);
+  handleRoute();
+}
+
+async function handleRoute() {
+  const path = window.location.pathname;
+  const route = routes[path] ? path : defaultRoute;
+  
+  if (route !== currentRoute) {
+    await loadModule(route);
+  }
+}
+
+async function loadModule(modulePath) {
+  const container = getMainContainer();
+  if (!container) return;
+  
+  container.innerHTML = '<div class="loading">Загрузка...</div>';
+  
+  try {
+    const moduleMap = {
+      "/tasks": "../modules/tasks/tasksUI.js",
+      "/notes": "../modules/notes/notesUI.js",
+      "/tracker": "../modules/tracker/trackerUI.js"
+    };
     
+    const moduleFile = moduleMap[modulePath];
+    if (!moduleFile) throw new Error(`Маршрут не найден: ${modulePath}`);
+    
+    const module = await import(moduleFile);
+    const renderFn = module.renderTasksUI || module.renderNotesUI || module.renderTrackerUI;
+    
+    if (typeof renderFn === "function") {
+      await renderFn();
+      currentRoute = modulePath;
+      updateActiveNav(modulePath);
+      console.log(`✅ Module loaded: ${modulePath}`);
+    } else {
+      throw new Error("Функция рендера не найдена");
+    }
+    
+  } catch (error) {
+    console.error(`❌ Failed to load ${modulePath}:`, error);
+    if (container) {
+      container.innerHTML = `
+        <div class="error-state">
+          <h3>Ошибка загрузки</h3>
+          <p>${error.message}</p>
+          <button onclick="location.reload()">Обновить</button>
+        </div>
+      `;
+    }
+  }
+}
+
+export { navigate as routerNavigate };
