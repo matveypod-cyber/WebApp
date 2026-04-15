@@ -14,12 +14,14 @@ async function initApp() {
   
   if (auth.authenticated) {
     console.log("✅ User authenticated:", auth.user);
+    // 3. Инициализация роутера
     initRouter();
   } else {
-    console.log("⚠️ User not authenticated - showing auth screen");
+    console.log("⚠️ User not authenticated");
+    // Auth экран показан в initUI()
   }
   
-  // 3. Регистрация Service Worker
+  // 4. Регистрация Service Worker
   registerServiceWorker();
   
   console.log("✅ App ready");
