@@ -30,8 +30,9 @@ app.get("/health", (req, res) => {
 });
 
 // 404 для неизвестных API-путей (без '/*'!)
-app.use((req, res) => {
-  res.status(404).json({ error: "API endpoint not found" });
+// ✅ Работает с новой path-to-regexp:
+app.get("/:path*", (req, res) => {
+  res.status(404).json({ error: "Not found" });
 });
 
 // Error handler
