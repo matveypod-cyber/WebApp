@@ -18,7 +18,7 @@ app.use(cors({
 app.use(bodyParser.json({ limit: "10mb" }));
 
 // API роуты
-app.use(authRoutes);
+app.use("/api", authRoutes);
 
 // Health check для Render
 app.get("/health", (req, res) => {
@@ -29,10 +29,14 @@ app.get("/health", (req, res) => {
   });
 });
 
-// 404 для неизвестных API-путей (без '/*'!)
-// ✅ Работает с новой path-to-regexp:
-app.get("/:path*", (req, res) => {
-  res.status(404).json({ error: "Not found" });
+// ❌ УДАЛИТЬ этот блок — он вызывает ошибку path-to-regexp:
+// app.get("/:path*", (req, res) => {
+//   res.status(404).json({ error: "Not found" });
+// });
+
+// ✅ Вместо этого — просто обработчик 404 через app.use():
+app.use((req, res) => {
+  res.status(404).json({ error: "API endpoint not found" });
 });
 
 // Error handler
