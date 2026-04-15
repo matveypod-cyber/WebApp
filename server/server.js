@@ -18,7 +18,7 @@ app.use(cors({
 app.use(bodyParser.json({ limit: "10mb" }));
 
 // API роуты
-app.use("/api", authRoutes);
+app.use(authRoutes);
 
 // Health check для Render
 app.get("/health", (req, res) => {
