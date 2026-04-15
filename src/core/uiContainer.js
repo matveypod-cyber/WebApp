@@ -4,9 +4,11 @@ import { getCurrentUser, logoutUser, loginAsGuest, checkAuth } from "./authServi
 import { showToast } from "../utils/helpers.js";  // ✅ ИМПОРТ (не объявлять повторно!)
 
 export function initUI() {
-  const app = document.getElementById("app");
+  const app = document.getElementById("app"); // или "app-container"
+  
   if (!app) {
     console.error("❌ #app container not found");
+    console.log("Available elements:", document.body.innerHTML);
     return;
   }
   
