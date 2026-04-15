@@ -11,7 +11,27 @@ import { showToast } from "../utils/helpers.js";
 
 export function initUI() {
   const app = document.getElementById("app");
-  if (!app) return;
+  if (!app) {
+    // Для совместимости с вашим index.html
+    const container = document.getElementById("main-container");
+    if (container) {
+      const auth = checkAuth();
+      if (auth.authenticated) {
+        // Пользователь авторизован — скрываем auth
+        container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Загрузка...</p></div>';
+        setTimeout(() => {
+          window.Core?.init();
+          window.Router?.init();
+          window.Core?.loadModule('tasks');
+        }, 500);
+      } else {
+        // Показываем auth экран
+        container.innerHTML = renderAuthScreen();
+        setupAuthHandlers();
+      }
+    }
+    return;
+  }
   
   const auth = checkAuth();
   const user = auth.user;
@@ -121,7 +141,7 @@ function renderAuthScreen(isGuestMode) {
 }
 
 function setupNavigation() {
-  document.querySelectorAll("button[data-path]").forEach(btn => {
+  document.querySelectorAll("button[data-path], button[data-route]").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       
@@ -132,7 +152,7 @@ function setupNavigation() {
         return;
       }
       
-      const path = btn.getAttribute("data-path");
+      const path = btn.getAttribute("data-path") || btn.getAttribute("data-route");
       btn.style.transform = "scale(0.95)";
       setTimeout(() => { 
         btn.style.transform = ""; 
@@ -143,11 +163,8 @@ function setupNavigation() {
 }
 
 function setupAuthButtons() {
-  // Кнопка входа
   document.getElementById("login-btn")?.addEventListener("click", () => showAuthModal("login"));
   document.getElementById("show-login")?.addEventListener("click", () => showAuthModal("login"));
-  
-  // Кнопка регистрации
   document.getElementById("show-register")?.addEventListener("click", () => showAuthModal("register"));
   
   // 🔥 Кнопка гостя
@@ -160,7 +177,6 @@ function setupAuthButtons() {
     }
   });
   
-  // Кнопка выхода
   document.getElementById("logout-btn")?.addEventListener("click", async () => {
     const auth = checkAuth();
     const message = auth.isGuest 
@@ -250,15 +266,93 @@ export function showAuthModal(type = "login") {
   modal.style.display = "flex";
 }
 
+// Для совместимости с вашим index.html
+function setupAuthHandlers() {
+  const form = document.getElementById('auth-form');
+  const tabs = document.querySelectorAll('.tab-btn');
+  const message = document.getElementById('auth-message');
+  const submitBtn = document.getElementById('auth-submit');
+  let mode = 'login';
+  
+  tabs[0]?.addEventListener('click', () => { 
+    mode = 'login'; 
+    tabs[0].classList.add('active'); 
+    tabs[1]?.classList.remove('active'); 
+    submitBtn.textContent = 'Войти'; 
+  });
+  
+  tabs[1]?.addEventListener('click', () => { 
+    mode = 'register'; 
+    tabs[1].classList.add('active'); 
+    tabs[0]?.classList.remove('active'); 
+    submitBtn.textContent = 'Зарегистрироваться'; 
+  });
+  
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    message.textContent = '⏳ Загрузка...';
+    submitBtn.disabled = true;
+
+    try {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      
+      const url = mode === 'register' ? '/api/register' : '/api/login';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status} ${res.statusText}: ${text}`);
+      }
+
+      const data = await res.json();
+      
+      message.innerHTML = mode === 'register' 
+        ? '✅ Регистрация OK. Проверь почту.' 
+        : '✅ Вход выполнен!';
+      
+      setTimeout(async () => {
+        window.currentUser = { email };
+        sessionStorage.setItem('authUser', JSON.stringify({email}));
+        sessionStorage.setItem('authSession', JSON.stringify(data.session || {}));
+        
+        const userDisplay = document.getElementById('user-display');
+        userDisplay.textContent = email;
+        userDisplay.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+        userDisplay.style.color = 'white';
+        
+        document.getElementById('auth-root')?.remove();
+        
+        window.Core?.init();
+        window.Router?.init();
+        window.Core?.loadModule('tasks');
+      }, 1500);
+      
+    } catch (err) {
+      message.textContent = err.message.includes('not confirmed') 
+        ? '📧 Подтверди email' 
+        : `❌ ${err.message}`;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+}
+
 export function updateActiveNav(path) {
   document.querySelectorAll(".nav-btn").forEach(btn => {
     btn.classList.remove("active");
-    if (btn.getAttribute("data-path") === path) btn.classList.add("active");
+    if (btn.getAttribute("data-path") === path || btn.getAttribute("data-route") === path) {
+      btn.classList.add("active");
+    }
   });
 }
 
 export function getMainContainer() {
-  return document.getElementById("main-content");
+  return document.getElementById("main-content") || document.getElementById("main-container");
 }
 
 // Toast system
@@ -278,7 +372,10 @@ function initToastSystem() {
 
 export function showToast(message, type = "info", duration = 3000) {
   const container = document.getElementById("toast-container");
-  if (!container) return;
+  if (!container) {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    return;
+  }
   
   const icons = { success: "✅", error: "❌", warning: "⚠️", info: "ℹ️" };
   const toast = document.createElement("div");
@@ -309,7 +406,12 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Экспорт для использования в других модулях
 window.showToast = showToast;
 window.showAuthModal = showAuthModal;
 window.showAbout = () => showToast("Smart Dashboard PWA v2.0\nГостевой режим + Offline + CRUD", "info", 5000);
+window.logout = () => {
+  if (confirm("Выйти из аккаунта?")) {
+    logoutUser();
+    location.reload();
+  }
+};

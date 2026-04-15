@@ -6,9 +6,6 @@ const API_URL = window.location.hostname === "localhost"
 
 // ===== ГОСТЕВОЙ РЕЖИМ =====
 
-/**
- * Войти как гость
- */
 export function loginAsGuest() {
   const guestUser = {
     id: "guest_" + Date.now(),
@@ -17,7 +14,6 @@ export function loginAsGuest() {
     name: "Гость"
   };
   
-  // Сохраняем в localStorage (не sessionStorage, чтобы не терялось при обновлении)
   localStorage.setItem("auth_token", "guest_token_" + guestUser.id);
   localStorage.setItem("auth_user", JSON.stringify(guestUser));
   localStorage.setItem("auth_mode", "guest");
@@ -25,18 +21,12 @@ export function loginAsGuest() {
   return { success: true, user: guestUser };
 }
 
-/**
- * Проверка, является ли пользователь гостем
- */
 export function isGuest() {
   const mode = localStorage.getItem("auth_mode");
   const user = getCurrentUser();
   return mode === "guest" || user?.isGuest === true;
 }
 
-/**
- * Выход из гостевого режима
- */
 export function logoutGuest() {
   localStorage.removeItem("auth_token");
   localStorage.removeItem("auth_user");
