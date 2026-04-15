@@ -1,3 +1,5 @@
+// src/modules/tasks/tasks.js
+
 import { isGuest, getCurrentUser } from "../../core/authService.js";
 import { storage } from "../../utils/storage.js";
 
@@ -29,19 +31,18 @@ function loadTasks() {
 function saveTasks() {
   const key = getStorageKey();
   storage.set(key, tasks);
-  // Уведомляем другие модули
   window.dispatchEvent(new CustomEvent("tasks:updated", { detail: { tasks } }));
 }
 
 // Инициализация
 loadTasks();
 
-// Получить все задачи
+// ✅ Получить все задачи
 export function getTasks() {
   return [...tasks];
 }
 
-// Добавить задачу
+// ✅ Добавить задачу
 export function addTask(task) {
   const newTask = {
     id: Date.now(),
@@ -55,7 +56,7 @@ export function addTask(task) {
   return newTask;
 }
 
-// Отметить задачу как выполненную
+// ✅ Отметить задачу как выполненную (completeTask)
 export function completeTask(taskId) {
   const task = tasks.find(t => t.id === taskId);
   if (task) {
@@ -65,7 +66,7 @@ export function completeTask(taskId) {
   return task;
 }
 
-// Удалить задачу
+// ✅ Удалить задачу
 export function deleteTask(taskId) {
   const initialLength = tasks.length;
   tasks = tasks.filter(t => t.id !== taskId);
@@ -76,12 +77,12 @@ export function deleteTask(taskId) {
   return false;
 }
 
-// Получить суммарные баллы
+// ✅ Получить суммарные баллы
 export function getTotalPoints() {
   return tasks.filter(t => t.completed).reduce((sum, t) => sum + (t.points || 0), 0);
 }
 
-// Обновить задачу
+// ✅ Обновить задачу
 export function updateTask(taskId, updates) {
   const task = tasks.find(t => t.id === taskId);
   if (task) {
@@ -92,7 +93,7 @@ export function updateTask(taskId, updates) {
   return false;
 }
 
-// Очистить выполненные
+// ✅ Очистить выполненные
 export function clearCompleted() {
   const initialLength = tasks.length;
   tasks = tasks.filter(t => !t.completed);
