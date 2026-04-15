@@ -1,4 +1,4 @@
-// src/main.js - точка входа приложения
+// src/main.js
 import { initUI } from "./core/uiContainer.js";
 import { initRouter } from "./core/router.js";
 import { checkAuth } from "./core/authService.js";
@@ -6,24 +6,17 @@ import { checkAuth } from "./core/authService.js";
 async function initApp() {
   console.log("🚀 Smart Dashboard initializing...");
   
-  // 1. Инициализация UI
   initUI();
   
-  // 2. Проверка авторизации
-  const auth = await checkAuth();
-  
+  const auth = checkAuth();
   if (auth.authenticated) {
     console.log("✅ User authenticated:", auth.user);
-    // 3. Инициализация роутера
     initRouter();
   } else {
     console.log("⚠️ User not authenticated");
-    // Auth экран показан в initUI()
   }
   
-  // 4. Регистрация Service Worker
   registerServiceWorker();
-  
   console.log("✅ App ready");
 }
 
@@ -43,5 +36,4 @@ function registerServiceWorker() {
   }
 }
 
-// Запуск
 initApp();

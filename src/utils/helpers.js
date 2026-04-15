@@ -1,152 +1,76 @@
-/**
- * Вспомогательные функции для приложения
- */
+// src/utils/helpers.js
 
-/**
- * Дебаунс функции
- */
-export function debounce(func, wait = 300) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+export function showToast(message, type = "info", duration = 3000) {
+  // Проверяем, есть ли уже контейнер
+  let container = document.getElementById("toast-container");
+  
+  // Создаём контейнер, если нет
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    container.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    `;
+    document.body.appendChild(container);
+  }
+  
+  const icons = {
+    success: "✅",
+    error: "❌",
+    warning: "⚠️",
+    info: "ℹ️"
   };
+  
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.style.cssText = `
+    padding: 12px 20px;
+    background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : type === 'warning' ? '#f59e0b' : '#6366f1'};
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 250px;
+  `;
+  
+  toast.innerHTML = `
+    <span>${icons[type] || icons.info}</span>
+    <span>${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Добавляем анимацию
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  `;
+  if (!document.querySelector("style[data-toast]")) {
+    style.setAttribute("data-toast", "true");
+    document.head.appendChild(style);
+  }
+  
+  // Удаляем через duration
+  setTimeout(() => {
+    toast.style.animation = "slideOut 0.3s ease";
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
 }
 
-/**
- * Форматирование даты
- */
-export function formatDate(date, locale = 'ru-RU') {
-  const d = new Date(date);
-  return d.toLocaleDateString(locale, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-}
-
-/**
- * Генерация уникального ID
- */
-export function generateId() {
-  return Date.now() + Math.floor(Math.random() * 10000);
-}
-
-/**
- * Безопасное экранирование HTML
- */
 export function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
-
-/**
- * Показать тост-уведомление
- */
-export function showToast(message, type = 'info', duration = 3000) {
-  // Если контейнер тостов существует — используем его
-  const container = document.getElementById('toast-container');
-  if (container && typeof window.showToast === 'function') {
-    window.showToast(message, type, duration);
-    return;
-  }
-  
-  // Fallback через alert/console
-  console.log(`[${type.toUpperCase()}] ${message}`);
-  if (type === 'error') {
-    console.error(message);
-  }
-}
-
-/**
- * Проверка онлайн-статуса
- */
-export function isOnline() {
-  return navigator.onLine;
-}
-
-/**
- * Валидация формы
- */
-export function validateForm(formData, rules) {
-  const errors = [];
-  
-  for (const [field, rule] of Object.entries(rules)) {
-    const value = formData[field];
-    
-    if (rule.required && !value?.trim()) {
-      errors.push(`${field} обязателен`);
-      continue;
-    }
-    
-    if (rule.minLength && value?.length < rule.minLength) {
-      errors.push(`${field} должен быть не короче ${rule.minLength} символов`);
-    }
-    
-    if (rule.maxLength && value?.length > rule.maxLength) {
-      errors.push(`${field} не должен превышать ${rule.maxLength} символов`);
-    }
-    
-    if (rule.pattern && value && !rule.pattern.test(value)) {
-      errors.push(rule.errorMessage || `Неверный формат ${field}`);
-    }
-  }
-  
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Копирование в буфер обмена
- */
-export async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    showToast("Скопировано! 📋", "success", 1500);
-    return true;
-  } catch {
-    showToast("Не удалось скопировать", "error");
-    return false;
-  }
-}
-
-/**
- * Локальное хранилище с обработкой ошибок
- */
-export const storage = {
-  get(key, defaultValue = null) {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch {
-      return defaultValue;
-    }
-  },
-  
-  set(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch {
-      showToast("Не удалось сохранить данные", "error");
-      return false;
-    }
-  },
-  
-  remove(key) {
-    try {
-      localStorage.removeItem(key);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-};
