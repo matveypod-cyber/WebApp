@@ -1,4 +1,3 @@
-// src/main.js
 import { initUI } from "./core/uiContainer.js";
 import { initRouter } from "./core/router.js";
 import { checkAuth } from "./core/authService.js";
@@ -16,24 +15,20 @@ async function initApp() {
     console.log("⚠️ User not authenticated");
   }
   
-  registerServiceWorker();
-  console.log("✅ App ready");
-}
-
-function registerServiceWorker() {
+  // Регистрация SW - ПРАВИЛЬНЫЙ ПУТЬ
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", async () => {
-      try {
-        const registration = await navigator.serviceWorker.register(
-          "/src/serviceWorker.js", 
-          { scope: "/" }
-        );
-        console.log("✅ Service Worker registered:", registration.scope);
-      } catch (error) {
-        console.error("❌ Service Worker registration failed:", error);
-      }
-    });
+    try {
+      const registration = await navigator.serviceWorker.register(
+        "/serviceWorker.js",  // ← В корне public/
+        { scope: "/" }
+      );
+      console.log("✅ SW registered:", registration.scope);
+    } catch (error) {
+      console.error("❌ SW registration failed:", error);
+    }
   }
+  
+  console.log("✅ App ready");
 }
 
 initApp();

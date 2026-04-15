@@ -24,17 +24,5 @@
     }
   ],
   "categories": ["productivity", "utilities"],
-  "screenshots": [
-    {
-      "src": "/icons/screenshot1.png",
-      "sizes": "1170x2532",
-      "form_factor": "wide",
-      "label": "Tasks & Notes"
-    },
-    {
-      "src": "/icons/screenshot2.png",
-      "sizes": "1170x2532",
-      "label": "Trackers"
-    }
-  ]
+  
 }
