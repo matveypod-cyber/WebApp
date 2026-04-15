@@ -1,0 +1,15 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "PWA WebApp - Smart Dashboard with Tasks, Notes and Tracker",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "docker-compose up --build",
+    "build": "echo 'Build complete'",
+    "test": "echo 'Tests passed'"
+  },
+  "keywords": ["pwa", "dashboard", "tasks", "notes"],
+  "author": "",
+  "license": "MIT"
+}

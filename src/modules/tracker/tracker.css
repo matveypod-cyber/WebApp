@@ -1,0 +1,62 @@
+.mascot-section {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.mascot-avatar {
+    font-size: 64px;
+    margin-bottom: 10px;
+}
+
+.mascot-message {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #4F46E5;
+}
+
+.leaderboard {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.leaderboard-row:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-row.current-user {
+    background: #EEF2FF;
+    font-weight: bold;
+}

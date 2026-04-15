@@ -1,0 +1,9 @@
+services:
+  webapp-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: my-pwa-app
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
