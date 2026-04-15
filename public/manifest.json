@@ -1,28 +1,81 @@
 {
   "name": "Smart Dashboard",
   "short_name": "Dashboard",
-  "description": "📱 PWA для задач, заметок и трекинга привычек",
+  "description": "PWA Smart Dashboard с задачами, заметками и трекером прогресса. Работает оффлайн.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#6366f1",
   "orientation": "portrait-primary",
+  "background_color": "#121212",
+  "theme_color": "#6366f1",
   "lang": "ru",
-  "id": "/",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "education"],
   "icons": [
     {
-      "src": "/icons/192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/512.png", 
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["productivity", "utilities"],
-  
+  "shortcuts": [
+    {
+      "name": "Задачи",
+      "short_name": "Задачи",
+      "description": "Открыть список задач",
+      "url": "/?route=tasks",
+      "icons": [
+        {
+          "src": "/icons/tasks-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Заметки",
+      "short_name": "Заметки",
+      "description": "Открыть заметки",
+      "url": "/?route=notes",
+      "icons": [
+        {
+          "src": "/icons/notes-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Трекер",
+      "short_name": "Трекер",
+      "description": "Открыть трекер прогресса",
+      "url": "/?route=tracker",
+      "icons": [
+        {
+          "src": "/icons/tracker-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
 }
