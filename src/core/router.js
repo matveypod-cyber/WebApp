@@ -1,36 +1,35 @@
-let routes = {};
-let defaultRoute = null;
+class Router {
+    constructor() { this.currentRoute = null; }
 
-// Инициализация маршрутов
-export function initRouter() {
-    // Определяем маршруты и их обработчики
-    routes = {
-        "/tasks": () => import("../modules/tasks/tasksUI.js").then(mod => mod.renderTasksUI()),
-        "/notes": () => import("../modules/notes/notesUI.js").then(mod => mod.renderNotesUI()),
-        "/tracker": () => import("../modules/tracker/trackerUI.js").then(mod => mod.renderTrackerUI())
-    };
-    
-    defaultRoute = "/tasks"; // По умолчанию открывается Tasks
-    
-    // Слушаем изменения URL (кнопки браузера)
-    window.addEventListener("popstate", handleRoute);
-    
-    // Инициализация маршрута при загрузке
-    handleRoute();
-}
+    init() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.navigate(btn.dataset.route);
+            });
+        });
+        window.addEventListener('popstate', () => {
+            const route = location.pathname.slice(1) || 'tasks';
+            this.navigate(route);
+        });
+    }
 
-// Переход по маршруту
-export function navigate(path) {
-    history.pushState({}, "", path);
-    handleRoute();
-}
-
-// Обработка маршрута
-function handleRoute() {
-    const path = window.location.pathname;
-    const route = routes[path] ? path : defaultRoute;
-    
-    if (routes[route]) {
-        routes[route]();
+    async navigate(route) {
+        if (this.currentRoute === route) return;
+        
+        // UI
+        document.querySelectorAll('.nav-btn').forEach(btn => 
+            btn.classList.toggle('active', btn.dataset.route === route)
+        );
+        await window.Core.loadModule(route);
+        this.currentRoute = route;
+        
+        // History ТОЛЬКО если не fallback
+        if (!window.location.pathname.includes('public')) {
+            history.pushState({}, '', '/' + route);
+        }
     }
 }
+
+window.Router = new Router();
+    

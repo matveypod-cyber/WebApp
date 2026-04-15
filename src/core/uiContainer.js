@@ -1,36 +1,27 @@
-import { navigate } from "./router.js";
+class Core {
+    constructor() {
+        this.modules = new Map();
+    }
 
-// Инициализация базового UI
-export function initUI() {
-    const app = document.getElementById("app");
-    app.innerHTML = `
-        <header class="app-header">
-            <h1>Smart Dashboard</h1>
-            <nav class="app-nav">
-                <button data-path="/tasks" class="nav-btn active">Задачи</button>
-                <button data-path="/notes" class="nav-btn">Заметки</button>
-                <button data-path="/tracker" class="nav-btn">Прогресс</button>
-            </nav>
-        </header>
-        <main id="main-content" class="app-main"></main>
-    `;
-    
-    // Привязка кнопок навигации
-    const buttons = app.querySelectorAll("button[data-path]");
-    buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const path = btn.getAttribute("data-path");
-            
-            // Обновляем активную кнопку
-            buttons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            
-            navigate(path);
-        });
-    });
+    async init() {
+        this.container = document.getElementById('main-container');
+        console.log('✅ Core готов');
+    }
+
+    registerModule(name, module) {
+        this.modules.set(name, module);
+    }
+
+    async loadModule(name) {
+        this.container.innerHTML = '<div style="text-align:center;padding:3rem;color:#6366f1">🔄 Загрузка ' + name + '...</div>';
+        const module = this.modules.get(name);
+        if (!module) {
+            this.container.innerHTML = '<p style="color:red">❌ Модуль ' + name + ' не найден</p>';
+            return;
+        }
+        await module.init?.();
+        module.render(this.container);
+    }
 }
 
-// Получение контейнера для рендеринга модулей
-export function getMainContainer() {
-    return document.getElementById("main-content");
-}
+window.Core = new Core();

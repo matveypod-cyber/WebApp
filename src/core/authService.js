@@ -1,29 +1,22 @@
-// Заглушка для авторизации (MVP)
+const API_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:4000/api"
+    : "https://mobileapp-backend-athn.onrender.com";
 
-let currentUser = {
-    id: 1,
-    name: "Пользователь",
-    email: "user@example.com",
-    totalPoints: 0
-};
+export async function registerUser(email, password) {
+  const res = await fetch(`${API_URL}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  return res.json();
+}
 
-export const AuthService = {
-    async login(email, password) {
-        console.log("Login attempt", email);
-        return { success: true, user: currentUser };
-    },
-    
-    async logout() {
-        console.log("Logout");
-        currentUser = null;
-        return true;
-    },
-    
-    getCurrentUser() {
-        return currentUser;
-    },
-    
-    isAuthenticated() {
-        return currentUser !== null;
-    }
-};
+export async function loginUser(email, password) {
+  const res = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  return res.json();
+}

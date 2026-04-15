@@ -1,14 +1,67 @@
 :root {
-    --primary: #4F46E5;
-    --primary-dark: #4338CA;
-    --secondary: #7C3AED;
-    --success: #10B981;
-    --danger: #EF4444;
-    --bg: #F3F4F6;
-    --surface: #FFFFFF;
-    --text: #1F2937;
-    --text-light: #6B7280;
-    --border: #E5E7EB;
-    --shadow: 0 1px 3px rgba(0,0,0,0.1);
-    --radius: 8px;
+  /* Цветовая палитра */
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #252526;
+  --bg-card: #2d2d30;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #707070;
+  
+  --accent-primary: #4caf50;
+  --accent-hover: #45a049;
+  --accent-secondary: #2196f3;
+  --accent-warning: #ff9800;
+  --accent-error: #f44336;
+  
+  --border-color: #3a3a3a;
+  --border-light: #444444;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  
+  /* Отступы */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  
+  /* Радиусы */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  /* Анимации */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+  
+  /* Шрифты */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Fira Code', 'Consolas', monospace;
+  
+  /* Размеры */
+  --header-height: 64px;
+  --sidebar-width: 240px;
+}
+
+/* Светлая тема (авто) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f3f5;
+    --bg-card: #ffffff;
+    
+    --text-primary: #1a1a1a;
+    --text-secondary: #555555;
+    --text-muted: #888888;
+    
+    --border-color: #e0e0e0;
+    --border-light: #f0f0f0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
 }

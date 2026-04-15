@@ -1,46 +1,29 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Offline</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, sans-serif;
-            background-color: #F3F4F6;
-            color: #1F2937;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .container {
-            max-width: 400px;
-            padding: 20px;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 16px;
-            color: #4F46E5;
-        }
-        p {
-            font-size: 16px;
-            opacity: 0.8;
-        }
-        .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-    </style>
+  <meta charset="utf-8">
+  <title>Оффлайн | Smart Dashboard</title>
+  <meta name="viewport" content="width=device-width">
+  <style>
+    body { 
+      margin: 0; padding: 4rem 2rem; 
+      display: flex; flex-direction: column; 
+      align-items: center; justify-content: center; 
+      min-height: 100vh; background: #f8f9fa; 
+      font-family: system-ui, sans-serif; text-align: center; 
+    }
+    h1 { font-size: clamp(2rem, 5vw, 4rem); margin: 0 0 1rem; color: #333; }
+    p { color: #666; max-width: 40ch; margin: 0 0 2rem; }
+    button { 
+      padding: 1rem 2rem; background: #6366f1; 
+      color: white; border: none; border-radius: 12px; 
+      font-size: 1.1rem; cursor: pointer; font-weight: 600; 
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="icon">📡</div>
-        <h1>Нет подключения к интернету</h1>
-        <p>Проверьте соединение и попробуйте снова.</p>
-    </div>
+  <h1>🌐 Оффлайн</h1>
+  <p>Ты оффлайн, но данные сохранены локально. Подключись к сети для синхронизации.</p>
+  <button onclick="location.reload()">🔄 Попробовать снова</button>
 </body>
 </html>
