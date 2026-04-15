@@ -59,7 +59,7 @@ table {
 }
 
 ::selection {
-  background: var(--accent-primary);
+  background: var(--primary);
   color: white;
 }
 
@@ -75,7 +75,7 @@ table {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
-  border-radius: var(--radius-full);
+  border-radius: var(--border-radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -84,45 +84,6 @@ table {
 
 /* Фокус для доступности */
 :focus-visible {
-  outline: 2px solid var(--accent-secondary);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-
-/* Скрытие элементов */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Анимации появления */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.fade-in { animation: fadeIn var(--transition-normal); }
-.slide-in { animation: slideIn var(--transition-normal); }
-.pulse { animation: pulse 2s infinite; }
-.bounce { animation: bounce 1s infinite; }
