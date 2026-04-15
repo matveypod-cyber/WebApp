@@ -1,31 +1,36 @@
 import express from "express";
 import bodyParser from "body-parser";
-import cors from "cors";  // npm i cors
+import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./authRoutes.js";
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 4000;
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // или ваш домен
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  if (req.method === 'OPTIONS') res.sendStatus(200);
-  else next();
+// CORS — используем только cors(), ручные заголовки не нужны
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "*",
+  credentials: true
+}));
+
+app.use(bodyParser.json({ limit: "10mb" }));
+
+// Авторизация: /api/register, /api/login
+app.use("/api", authRoutes);
+
+// Health check для Render
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.options('*', cors());
+// Catch-all для 404 (опционально)
+app.get("/*", (req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
 
-app.use(bodyParser.json({ limit: '10mb' }));
-
-// авторизация /api/register, /api/login
-app.use(authRoutes);
-
-
-
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () =>
-  console.log(`Auth server running on port ${PORT}`)
-);
+// Запуск сервера
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Auth server running on port ${PORT}`);
+});
