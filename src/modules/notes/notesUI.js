@@ -1,130 +1,74 @@
 import { getMainContainer } from "../../core/uiContainer.js";
 import { getNotes, addNote, togglePin, deleteNote, updateNote } from "./notes.js";
-import { showToast } from "../../utils/helpers.js";
 
-export async function renderNotesUI() {
+export function renderNotesUI() {
   const container = getMainContainer();
-  if (!container) return;
-  
   const notes = getNotes();
 
-  container.innerHTML = `
-    <div class="module notes-module slide-in">
-      <!-- Заголовок -->
+  let html = `
+    <div class="module notes-module">
       <div class="module-header">
         <h2>📝 Заметки</h2>
-        <span class="badge">${notes.length} шт.</span>
+        <span class="count">${notes.length} шт.</span>
       </div>
       
-      <!-- Форма добавления -->
-      <form id="note-form" style="margin-bottom: var(--space-lg);">
-        <textarea id="note-text" placeholder="Напишите заметку..." required></textarea>
-        <div style="display: flex; justify-content: flex-end; margin-top: var(--space-sm);">
-          <button type="submit" class="btn btn-primary">💾 Сохранить</button>
-        </div>
+      <form id="note-form" style="margin-bottom: 20px;">
+        <textarea id="note-text" placeholder="Напишите заметку..." rows="3" required style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); resize: vertical;"></textarea>
+        <button type="submit" class="btn-primary" style="margin-top: 8px;">💾 Сохранить</button>
       </form>
       
-      <!-- Список заметок -->
-      ${notes.length === 0 ? renderEmptyState() : renderNotesList(notes)}
-    </div>
-  `;
-
-  setupNoteForm();
-  setupNoteInteractions();
-}
-
-function renderEmptyState() {
-  return `
-    <div class="empty-state fade-in">
-      <div class="icon">✨</div>
-      <h3>Пусто</h3>
-      <p>Создайте первую заметку, чтобы ничего не забыть!</p>
-    </div>
-  `;
-}
-
-function renderNotesList(notes) {
-  return `
-    <div class="list">
-      ${notes.map(note => `
-        <div class="card ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
-          <div class="card-header">
-            <div style="display: flex; align-items: center; gap: var(--space-sm);">
-              ${note.pinned ? '<span class="item-pinned">📌</span>' : ''}
-              <span class="item-meta">${note.date}</span>
+      <div id="notes-list" style="display: grid; gap: 12px;">
+        ${notes.map(note => `
+          <div class="note-card ${note.pinned ? 'pinned' : ''}" style="background: var(--bg-card); border-radius: 8px; padding: 16px; border-left: 4px solid ${note.pinned ? 'var(--warning)' : 'var(--border-color)'}; transition: all 0.2s;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${note.pinned ? '<span>📌</span>' : ''}
+                <span style="font-size: 0.85rem; color: var(--text-muted);">${note.date}</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button onclick="window.handleNotePin(${note.id})" style="background: transparent; border: none; cursor: pointer; font-size: 1.1rem;">${note.pinned ? '📍' : '📌'}</button>
+                <button onclick="window.handleNoteEdit(${note.id})" style="background: transparent; border: none; cursor: pointer; font-size: 1.1rem;">✏️</button>
+                <button onclick="window.handleNoteDelete(${note.id})" style="background: transparent; border: none; cursor: pointer; font-size: 1.1rem;">🗑️</button>
+              </div>
             </div>
-            <div class="card-actions">
-              <button class="btn-icon" title="${note.pinned ? 'Открепить' : 'Закрепить'}" data-action="pin">
-                ${note.pinned ? '📌' : '📍'}
-              </button>
-              <button class="btn-icon" title="Редактировать" data-action="edit">✏️</button>
-              <button class="btn-icon btn-danger" title="Удалить" data-action="delete">🗑️</button>
-            </div>
+            <p style="margin: 0; white-space: pre-wrap; line-height: 1.5;">${note.text}</p>
           </div>
-          <p class="card-title" style="white-space: pre-wrap; line-height: 1.5;">${escapeHtml(note.text)}</p>
-        </div>
-      `).join('')}
+        `).join('')}
+      </div>
+      
+      ${notes.length === 0 ? '<p style="text-align: center; color: var(--text-muted); padding: 40px;">✨ Пусто. Создайте первую заметку!</p>' : ''}
     </div>
   `;
-}
 
-function setupNoteForm() {
-  const form = document.getElementById("note-form");
-  if (!form) return;
-  
-  form.addEventListener("submit", (e) => {
+  container.innerHTML = html;
+
+  // Обработчик формы
+  document.getElementById('note-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    
-    const text = document.getElementById("note-text").value.trim();
-    if (!text) {
-      showToast("Заметка не может быть пустой", "warning");
-      return;
-    }
-    
-    addNote(text);
-    showToast("Заметка сохранена! 📝", "success");
-    
-    form.reset();
-    renderNotesUI();
-  });
-}
-
-function setupNoteInteractions() {
-  document.querySelectorAll(".card").forEach(card => {
-    const noteId = parseInt(card.dataset.id);
-    
-    // Закрепить
-    card.querySelector("[data-action='pin']")?.addEventListener("click", () => {
-      togglePin(noteId);
-      showToast(card.classList.contains("pinned") ? "Откреплено" : "Закреплено! 📌", "info", 1500);
+    const text = document.getElementById('note-text').value;
+    if (text) {
+      addNote(text);
       renderNotesUI();
-    });
-    
-    // Удалить
-    card.querySelector("[data-action='delete']")?.addEventListener("click", () => {
-      if (confirm("Удалить заметку?")) {
-        deleteNote(noteId);
-        showToast("Заметка удалена", "info");
-        renderNotesUI();
-      }
-    });
-    
-    // Редактировать
-    card.querySelector("[data-action='edit']")?.addEventListener("click", () => {
-      const currentText = card.querySelector(".card-title").textContent;
-      const newText = prompt("Редактировать заметку:", currentText);
-      
-      if (newText !== null && newText.trim()) {
-        updateNote(noteId, newText.trim());
-        showToast("Заметка обновлена ✏️", "success");
-        renderNotesUI();
-      }
-    });
+    }
   });
-}
 
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
+  // Глобальные обработчики
+  window.handleNotePin = (id) => {
+    togglePin(id);
+    renderNotesUI();
+  };
+
+  window.handleNoteDelete = (id) => {
+    deleteNote(id);
+    renderNotesUI();
+  };
+
+  window.handleNoteEdit = (id) => {
+    const note = notes.find(n => n.id === id);
+    const newText = prompt("Редактировать заметку:", note.text);
+    if (newText !== null && newText.trim()) {
+      updateNote(id, newText.trim());
+      renderNotesUI();
+    }
+  };
 }
