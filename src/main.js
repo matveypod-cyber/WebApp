@@ -17,11 +17,7 @@ async function initApp() {
   
   // Регистрация SW - ПРАВИЛЬНЫЙ ПУТЬ
   // Регистрация SW - ПРАВИЛЬНЫЙ ПУТЬ
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/serviceWorker.js", { scope: "/" })
-    .then(reg => console.log("✅ SW registered:", reg.scope))
-    .catch(err => console.log("❌ SW failed:", err));
-}
+navigator.serviceWorker.register('/serviceWorker.js', { scope: '/' })
   
   console.log("✅ App ready");
 }
