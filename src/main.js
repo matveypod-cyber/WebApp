@@ -16,17 +16,12 @@ async function initApp() {
   }
   
   // Регистрация SW - ПРАВИЛЬНЫЙ ПУТЬ
-  if ("serviceWorker" in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register(
-        "/serviceWorker.js",  // ← В корне public/
-        { scope: "/" }
-      );
-      console.log("✅ SW registered:", registration.scope);
-    } catch (error) {
-      console.error("❌ SW registration failed:", error);
-    }
-  }
+  // Регистрация SW - ПРАВИЛЬНЫЙ ПУТЬ
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/serviceWorker.js", { scope: "/" })
+    .then(reg => console.log("✅ SW registered:", reg.scope))
+    .catch(err => console.log("❌ SW failed:", err));
+}
   
   console.log("✅ App ready");
 }
