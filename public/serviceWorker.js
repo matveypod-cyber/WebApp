@@ -1,112 +1,74 @@
-const CACHE_NAME = 'smart-dashboard-v1';
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/src/main.js',
-  '/src/core/uiContainer.js',
-  '/src/core/router.js',
-  '/src/modules/tasks/tasks.js',
-  '/src/modules/notes/notes.js',
-  '/src/modules/tracker/tracker.js',
-  '/src/core/authService.js'
+const CACHE_NAME = "smart-dashboard-v1";
+
+const ASSETS_TO_CACHE = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/serviceWorker.js"
 ];
 
 // Установка
-self.addEventListener('install', (e) => {
-  console.log('🚀 Service Worker: install');
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('📦 Кэшируем assets');
-      return cache.addAll(STATIC_ASSETS);
-    })
+self.addEventListener("install", event => {
+  console.log("[SW] Installing...");
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      console.log("[SW] Caching assets");
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 // Активация
-self.addEventListener('activate', (e) => {
-  console.log('🔄 Service Worker: activate');
-  e.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames.map((name) => 
-          name !== CACHE_NAME && caches.delete(name)
-        )
-      )
-    )
+self.addEventListener("activate", event => {
+  console.log("[SW] Activating...");
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            console.log("[SW] Deleting old cache:", key);
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch — стратегия Network First + Cache Fallback
-self.addEventListener('fetch', (e) => {
-  // API запросы — network first (для auth/data)
-  if (e.request.url.includes('/api/')) {
-    e.respondWith(
-      fetch(e.request).catch(() => {
-        console.log('🌐 API offline, возвращаем пустой ответ');
-        return new Response(JSON.stringify({offline: true}), {
-          headers: {'Content-Type': 'application/json'}
-        });
-      })
-    );
-    return;
-  }
-
-  // Static assets — cache first
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      if (cached) {
-        console.log('📦 Cache hit:', e.request.url);
-        return cached;
+// Перехват запросов
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) {
+        return cachedResponse;
       }
       
-      return fetch(e.request).then((networkRes) => {
-        if (!networkRes || networkRes.status >= 400) {
-          return caches.match('/offline.html') || 
-                 new Response('Offline', {status: 503});
+      return fetch(event.request).then(networkResponse => {
+        // Проверяем, что ответ валидный
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
+          return networkResponse;
         }
         
-        // Кэшируем новые ресурсы
-        const resToCache = networkRes.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(e.request, resToCache);
+        // Клонируем ответ для кэша
+        const responseToCache = networkResponse.clone();
+        
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache);
         });
         
-        return networkRes;
+        return networkResponse;
+      }).catch(() => {
+        // Оффлайн: возвращаем offline.html для навигации
+        if (event.request.mode === "navigate") {
+          return caches.match("/offline.html");
+        }
+        return new Response("Offline", { 
+          status: 503,
+          headers: new Headers({
+            "Content-Type": "text/plain"
+          })
+        });
       });
-    }).catch(() => {
-      console.log('🌐 Полностью оффлайн');
-      return caches.match('/offline.html') || 
-             new Response('Похоже, вы оффлайн. Перезагрузите страницу.', {status: 503});
     })
   );
 });
-
-// Push уведомления (опционально)
-self.addEventListener('push', (e) => {
-  const options = {
-    body: e.data ? e.data.text() : 'Новое уведомление!',
-    icon: '/icon-192.png',
-    badge: '/icon-72.png',
-    vibrate: [100, 50, 100],
-    data: { date: new Date().toISOString() }
-  };
-  
-  e.waitUntil(
-    self.registration.showNotification('Smart Dashboard', options)
-  );
-});
-
-// Background sync (для оффлайн задач)
-self.addEventListener('sync', (e) => {
-  if (e.tag === 'sync-tasks') {
-    e.waitUntil(syncPendingTasks());
-  }
-});
-
-async function syncPendingTasks() {
-  // Синхронизация оффлайн задач с сервером
-  console.log('🔄 Background sync tasks');
-}
